@@ -1,3 +1,4 @@
 #index:
-#    path: /
+    #path: /
+#    path: /hello/{name}
 #    controller: App\Controller\DefaultController::index
