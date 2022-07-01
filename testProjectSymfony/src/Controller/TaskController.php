@@ -12,54 +12,44 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TaskController extends AbstractController
 {
+    const FILENAME = '/file.csv';
+    const DELIMITER = ';';
+
     /**
-     * @Route("/form/", name="form")
+     * @Route("/tasks/", name="tasks")
      */
-    public function new(Request $request): Response
+
+    public function createFile(Request $request): Response
     {
-        // создает объект задачи и инициализирует некоторые данные для этого примера
         $task = new Task();
-//        $task->setTask('Write a blog post');
-//        $task->setDueDate(new \DateTime('tomorrow'));
-//        $form = $this->createFormBuilder($task)
-//            ->add('task', TextType::class)
-//            ->add('dueDate', DateType::class)
-//            ->add('save', SubmitType::class, ['label' => 'Create Task'])
-//            ->getForm();
-        $form = $this->createForm(TaskType::class, $task);
+        $createTaskForm = $this->createForm(TaskType::class, $task);
 
-        $form->handleRequest($request);
+        $createTaskForm->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $task = $form->getData();
-            $arr = [];
+        if ($createTaskForm->isSubmitted() && $createTaskForm->isValid()) {
+            $tasks = $createTaskForm->getData();
+            $dataUser = [];
 
-            foreach ($task as $valid => $val){
-                $arr[] = [$valid => $val];
+            foreach ($tasks as $valid => $val){
+                $dataUser[] = [$valid => $val];
             }
 
-            $buffer = fopen(__DIR__ . '/file.csv', 'a');
-            fputs($buffer, ";");
-            if(!is_file('file.csv')){
+            $tasksFile = fopen(__DIR__ . TaskController::FILENAME , 'a');
+
+            if(!file_get_contents(__DIR__ . TaskController::FILENAME)){
+                fputs($tasksFile, TaskController::DELIMITER);
                 $headers = ['name','email','password'];
-                fputcsv($buffer, $headers, ';');
+                fputcsv($tasksFile, $headers, TaskController::DELIMITER);
             }
 
-            foreach ($arr as $val){
-                fputcsv($buffer, $val,';');
+            foreach ($dataUser as $val){
+                fputcsv($tasksFile, $val,TaskController::DELIMITER);
             }
-            fclose($buffer);
+            fclose($tasksFile);
 
-            return $this->redirectToRoute('form');
+            return $this->redirectToRoute('tasks');
         }
 
-        return $this->render('task/new.html.twig', ['form' => $form->createView()]);
-    }
-
-    public function configureOptions(OptionsResolver $resolver): void
-    {
-        $resolver->setDefaults([
-            'data_class' => Task::class,
-        ]);
+        return $this->render('task/createFile.html.twig', ['form' => $createTaskForm->createView()]);
     }
 }

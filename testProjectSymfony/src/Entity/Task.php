@@ -6,9 +6,9 @@ use Symfony\Component\Validator\Constraint as Assert;
 
 class Task
 {
-    public $name;
-    public $email;
-    public $password;
+    public $name; //string
+    public $email; //string
+    public $password; //string
 
     public function getName(): string
     {
